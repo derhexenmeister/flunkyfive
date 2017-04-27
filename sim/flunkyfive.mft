@@ -1,10 +1,13 @@
-//--------------> LIBRARY FILES <---------------//
-//--------------> INCLUDE BFM FILES <--------------//
+//--------------> LIBRARY FILES <--------------------//
+//--------------> INCLUDE BFM FILES <----------------//
 +incdir+$(FLUNKYFIVE)/src/inc/
-//--------------> RTL FILES <--------------//
+//--------------> RTL FILES <------------------------//
 $(FLUNKYFIVE)/src/rtl/flunkyfive.v
+$(FLUNKYFIVE)/src/rtl/shared_ram.v
 $(FLUNKYFIVE)/src/rtl/true_dual_port_ram_single_clock.v
 //+incdir+$(FLUNKYFIVE)/src/rtl/
+//--------------> IP CORES <-------------------------//
+$(FLUNKYFIVE)/src/ip/picorv32/picorv32.v
 //--------------> Testbench/BFM FILES <--------------//
 $(FLUNKYFIVE)/src/ben/testbench.v
 $(FLUNKYFIVE)/src/bfm/ff_apb_master_bfm.v
