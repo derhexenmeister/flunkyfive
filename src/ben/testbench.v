@@ -69,7 +69,7 @@ flunkyfive flunkyfive (
     .clk            (clk),
     .resetn         (resetn),
 
-	// APB Interface
+    // APB Interface
     //
     .paddr          (paddr),
     .pwrite         (pwrite),
