@@ -138,8 +138,13 @@ begin
                  warning_cnt, exp_warning_cnt, error_cnt, exp_error_cnt, $time);
     end
     else begin
-        $display(">>>>>>>>>> FF_TERMINATE: simulation passed (warning_cnt = %0d, exp_warning_cnt = %0d, error_cnt = %0d, exp_error_cnt = %0d) at: %t",
+        if ((warning_cnt == 0) && (exp_warning_cnt == 0) && (error_cnt == 0) && (exp_error_cnt == 0)) begin
+            $display(">>>>>>>>>> FF_TERMINATE: simulation passed at: %t", $time);
+        end
+        else begin
+            $display(">>>>>>>>>> FF_TERMINATE: simulation passed (warning_cnt = %0d, exp_warning_cnt = %0d, error_cnt = %0d, exp_error_cnt = %0d) at: %t",
                  warning_cnt, exp_warning_cnt, error_cnt, exp_error_cnt, $time);
+        end
     end
 
     $finish;
