@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+egrep "Found .* tests to run in test_list" regress_iot
+echo "=========="
+grep KT_TERMINATE regress_iot | awk '{print $6}' | sort | uniq -c
+echo "=========="
+grep KT_FATAL regress_iot
+grep "couldn't find test status" regress_iot
+grep "problem with modelsim" regress_iot

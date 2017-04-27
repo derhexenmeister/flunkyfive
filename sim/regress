@@ -1,0 +1,80 @@
+#! /bin/awk -f
+######################################################################
+# Run a regression
+######################################################################
+BEGIN {
+    testcnt = 0
+
+    REGRESSFILENAME = "test_list_iot"
+    REPORTFILE = "regress_iot.txt"
+    TIMEFORMAT = "%a %b %e %H:%M:%S %Z %Y"
+
+    print "Processing " REGRESSFILENAME 
+
+    # Create complete list of tests
+    #
+    while (getline < REGRESSFILENAME > 0) {
+        testname = $1
+
+        if (match(testname, "^ *#")) {
+            print "Comment: " $0
+        }
+        else {
+            print "File: " testname
+            if (testname in dupcheck) {
+                print "Ignoring duplicated test " testname " in " REGRESSFILENAME
+            }
+            else {
+                dupcheck[testname] = 1
+                tests[testcnt] = testname
+                testcnt++
+            }
+        }
+    }
+
+    # Run tests
+    #
+    print "Found " testcnt " tests to run in " REGRESSFILENAME > REPORTFILE
+
+    for (i = 0 ; i < testcnt ; i++) {
+        command = "./runsim_iot_nodump " tests[i]
+        print "Running " tests[i] " at " strftime(TIMEFORMAT) >> REPORTFILE
+        start = systime()
+        status[i] = system(command)
+        end = systime()
+        print tests[i] " took " (end-start) " seconds or " (end-start)/60 " minutes" >> REPORTFILE
+
+        if (status[i] != 0) {
+            print tests[i] ": problem with modelsim" >> REPORTFILE
+        }
+        else {
+            passfail = ""
+            VSIMFILE = "tests/" tests[i] "/vsim.log"
+            while (getline < VSIMFILE > 0) {
+                if (index($0, "KT_TERMINATE")) {
+                    passfail = $0
+                }
+                if (index($0, "KT_FATAL")) {
+                    passfail = $0
+                }
+            }
+
+            if (passfail != "") {
+                print tests[i] ": " passfail >> REPORTFILE
+            }
+            else {
+                print tests[i] ": couldn't find test status" >> REPORTFILE
+            }
+        }
+    }
+
+    close(REPORTFILE)
+
+    # Summarize to console
+    #
+    print "######################################################################"
+    print "Final results:"
+    while (getline < REPORTFILE > 0) {
+        print
+    }
+}

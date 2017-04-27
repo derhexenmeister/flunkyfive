@@ -1,0 +1,104 @@
+#!/bin/sh
+######################################################################
+# Run a simulation via ModelSim
+#
+# TBD - create script to run a regression (multiple tests with
+# aggregated status)
+#
+######################################################################
+if [ ! $# == 1 ]; then
+    echo "Usage: $0 testname"
+    exit 1
+fi
+
+FILENAME=$FLUNKYFIVE/src/tst/$1.v
+
+if [ ! -f $FILENAME ]; then
+    echo "Test file $FILENAME does not exist"
+    exit 1
+fi
+
+echo "Creating fresh subdirectory for test build and execution"
+if [ -d tests/$1 ]; then
+    echo "Removing existing test directory"
+    if rm -rf tests/$1; then
+        echo "Removed existing test directory"
+    else
+        echo "Unable to remove existing test directory - aborting!" 1>&2
+        exit 1
+    fi
+else
+    echo "No need to remove old test directory"
+fi
+
+if mkdir tests/$1; then
+    echo "Created test directory"
+else
+    echo "Unable to create test directory - aborting!" 1>&2
+    exit 1
+fi
+
+if cd tests/$1; then
+    echo "Changed to test directory"
+else
+    echo "Unable to change to test directory - aborting!" 1>&2
+    exit 1
+fi
+
+echo "Touching modelsim.ini in test directory"
+touch modelsim.ini
+
+echo "Creating work directory with vlib"
+if vlib work; then
+    echo "Created new work directory"
+else
+    echo "Unable to create work directory - aborting!" 1>&2
+    cd ../..
+    exit 1
+fi
+
+echo "Map libraries"
+vmap altera_lnsim /home/tools/altera/15.1/modelsim_ae/altera/verilog/altera_lnsim
+vmap altera_v     /home/tools/altera/15.1/modelsim_ae/altera/verilog/altera
+vmap arriav_v     /home/tools/altera/15.1/modelsim_ae/altera/verilog/arriav
+
+echo "Building simulation with vlog"
+if vlog  -sv -mfcu $FLUNKYFIVE/src/tst/$1.v -f "../../flunkyfive.mft"; then
+    echo "Simulation build successful"
+else
+    echo "Unable to build simulation - aborting!" 1>&2
+    cd ../..
+    exit 1
+fi
+
+# A bit of a hack - creating modelsim_do file
+#
+echo "Creating modelsim_do"
+echo "vsim \\"                         > modelsim_do
+echo "-l vsim.log \\"                 >> modelsim_do
+echo "-L work \\"                     >> modelsim_do
+echo "-t ps +nowarnTSCALE +nowarnTFMPC \\" >> modelsim_do
+echo "-L altera_lnsim \\"             >> modelsim_do
+echo "-L altera_v \\"                 >> modelsim_do
+echo "-L arriav_v \\"                 >> modelsim_do
+echo "work.testbench \\"              >> modelsim_do
+echo "$1"                             >> modelsim_do
+echo "onbreak {quit -f}"              >> modelsim_do
+echo "run -all"                       >> modelsim_do
+
+if [ -f modelsim_do ]; then
+    echo "Running simulation"
+    if vsim -c -do modelsim_do; then
+        echo "Simulation ran normally"
+    else
+        echo "Error running simulation - aborting!" 1>&2
+        cd ../..
+        exit 1
+    fi
+else
+    echo "modelsim_do creation doesn't look correct - aborting!" 1>&2
+    cd ../..
+    exit 1
+fi
+
+cd ../..

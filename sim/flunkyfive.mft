@@ -1,0 +1,12 @@
+//--------------> LIBRARY FILES <---------------//
+//--------------> INCLUDE BFM FILES <--------------//
++incdir+$(FLUNKYFIVE)/src/inc/
+//--------------> RTL FILES <--------------//
+$(FLUNKYFIVE)/src/rtl/flunkyfive.v
+$(FLUNKYFIVE)/src/rtl/true_dual_port_ram_single_clock.v
+//+incdir+$(FLUNKYFIVE)/src/rtl/
+//--------------> Testbench/BFM FILES <--------------//
+$(FLUNKYFIVE)/src/ben/testbench.v
+$(FLUNKYFIVE)/src/bfm/ff_apb_master_bfm.v
+$(FLUNKYFIVE)/src/bfm/ff_log.v
+$(FLUNKYFIVE)/src/bfm/ff_utilities.v

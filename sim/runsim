@@ -1,0 +1,66 @@
+#!/bin/sh
+######################################################################
+# Run a simulation via ModelSim
+#
+# TBD - create script to run a regression (multiple tests with
+# aggregated status)
+#
+######################################################################
+if [ ! $# == 1 ]; then
+    echo "Usage: $0 testname"
+    exit 1
+fi
+
+FILENAME=$FLUNKYFIVE/src/tst/$1.v
+
+if [ ! -f $FILENAME ]; then
+    echo "Test file $FILENAME does not exist"
+    exit 1
+fi
+
+echo "Creating fresh subdirectory for test build and execution"
+if [ -d tests/$1 ]; then
+    echo "Removing existing test directory"
+    if rm -rf tests/$1; then
+        echo "Removed existing test directory"
+    else
+        echo "Unable to remove existing test directory - aborting!" 1>&2
+        exit 1
+    fi
+else
+    echo "No need to remove old test directory"
+fi
+
+if mkdir tests/$1; then
+    echo "Created test directory"
+else
+    echo "Unable to create test directory - aborting!" 1>&2
+    exit 1
+fi
+
+if cd tests/$1; then
+    echo "Changed to test directory"
+else
+    echo "Unable to change to test directory - aborting!" 1>&2
+    exit 1
+fi
+
+echo "Building simulation with iverilog"
+if iverilog -o sim.vvp $FLUNKYFIVE/src/tst/$1.v -f "../../flunkyfive.mft"; then
+    echo "Simulation build successful"
+else
+    echo "Unable to build simulation - aborting!" 1>&2
+    cd ../..
+    exit 1
+fi
+
+echo "Running simulation"
+if vvp -l sim.log sim.vvp; then
+    echo "Simulation ran normally"
+else
+    echo "Error running simulation - aborting!" 1>&2
+    cd ../..
+    exit 1
+fi
+
+cd ../..
