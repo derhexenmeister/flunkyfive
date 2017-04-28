@@ -9,7 +9,10 @@
 //`define DEBUG_TEST
 
 module test_ram();
+    localparam ADDR_WIDTH = 14;
+
     reg [128*8-1:0] status;
+    reg [31-1:0] ram[2**ADDR_WIDTH-1:0];
 
 //////////////////////////////////////////////////////////////////////
 // Helper tasks
@@ -31,13 +34,26 @@ initial begin
 
     status = "idle";
 
+    // Read firmware into local RAM
+    //
+    $readmemh("../../../src/sw/riscv/firmware.hex", ram);
+    if (ram[0] === 32'hx) begin
+        `FF_FATAL("Unable to open firmware file");
+    end
+
+    /////
+
     $display("Waiting for deassertion of resetn");
 
     while (testbench.resetn !== 1'b1) begin
         @(posedge testbench.clk);
     end
 
+    force testbench.flunkyfive.cpu.resetn = 1'b0; // HACK
+
     $display("Testbench resetn deasserted");
+
+    /////
 
     `FF_NOTE("Quick sanity test first");
     for (i = 0 ; i < 64 ; i = i + 4) begin
@@ -45,13 +61,27 @@ initial begin
     end
 
     for (i = 0 ; i < 64 ; i = i + 4) begin
-        exp32 = i ^ 32'h55555555;
+        exp32 = i;
         `FF_APB_READ(i, data32);
-        $display("RAM 0x%08h = 0x%08h, expected = 0x%08h", i, data32, exp32);
         if (data32 !== exp32) begin
+            $display("RAM 0x%08h = 0x%08h, expected = 0x%08h", i, data32, exp32);
             `FF_ERROR("Data doesn't match expected");
         end
     end
+
+    /////
+
+    `FF_NOTE("Load RISC V code");
+
+    for (i = 0 ; i < 2**ADDR_WIDTH ; i = i + 4) begin
+        `FF_APB_WRITE(i, ram[i>>2]);
+    end
+
+    `FF_NOTE("Done loading RISC V code");
+
+    release testbench.flunkyfive.cpu.resetn;
+
+    #(`FF_MILLISECOND * 10);
 
     `FF_TERMINATE;
 end
