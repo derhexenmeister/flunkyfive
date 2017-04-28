@@ -50,7 +50,7 @@ module true_dual_port_ram_single_clock
     output reg [(DATA_WIDTH-1):0] q_a, q_b
 );
     // Declare the RAM variable
-    reg [DATA_WIDTH-1:0] ram[2**ADDR_WIDTH-1:0];
+    reg [DATA_WIDTH-1:0] ram[0:2**ADDR_WIDTH-1];
 
     // Port A 
     always @ (posedge clk) begin

@@ -12,7 +12,7 @@ module test_ram();
     localparam ADDR_WIDTH = 14;
 
     reg [128*8-1:0] status;
-    reg [31-1:0] ram[2**ADDR_WIDTH-1:0];
+    reg [31:0] ram[0:2**ADDR_WIDTH-1];
 
 //////////////////////////////////////////////////////////////////////
 // Helper tasks
@@ -36,7 +36,7 @@ initial begin
 
     // Read firmware into local RAM
     //
-    $readmemh("../../../src/sw/riscv/firmware.hex", ram);
+    $readmemh("../../../src/sw/riscv/firmware.hex", ram, 0, 2**ADDR_WIDTH-1);
     if (ram[0] === 32'hx) begin
         `FF_FATAL("Unable to open firmware file");
     end
@@ -81,7 +81,7 @@ initial begin
 
     release testbench.flunkyfive.cpu.resetn;
 
-    #(`FF_MILLISECOND * 10);
+    #(`FF_MILLISECOND * 2);
 
     `FF_TERMINATE;
 end

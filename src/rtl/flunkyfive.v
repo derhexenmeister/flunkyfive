@@ -53,6 +53,8 @@ module flunkyfive (
         .mem_rdata  (mem_rdata)
     );
 
+    // 64 kbytes of dual-port RAM
+    //
     shared_ram #(
         .ADDR_WIDTH(14)
     ) ram (

@@ -11,7 +11,7 @@ module true_dual_port_ram_dual_clock
 );
 
     // Declare the RAM variable
-    reg [DATA_WIDTH-1:0] ram[2**ADDR_WIDTH-1:0];
+    reg [DATA_WIDTH-1:0] ram[0:2**ADDR_WIDTH-1];
 
     always @ (posedge clk_a) begin
         // Port A 
