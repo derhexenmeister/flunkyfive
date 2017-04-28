@@ -21,7 +21,17 @@ module flunkyfive (
     wire [3:0]          mem_wstrb;
 
     reg                 mem_ready;
-    reg [31:0]          mem_rdata;
+    //reg [31:0]        mem_rdata;
+    wire [31:0]          mem_rdata;
+
+    always @(posedge clk or negedge resetn) begin
+        if (!resetn) begin
+            mem_ready <= 1'b0;
+        end
+        else begin
+            mem_ready <= mem_valid;
+        end
+    end
 
     picorv32 #(
         .ENABLE_REGS_DUALPORT(1),
@@ -47,14 +57,16 @@ module flunkyfive (
         .ADDR_WIDTH(14)
     ) ram (
         .clk        (clk),
+        // ARM HPS
         .we_a       ({4{pwrite & psel & penable}}),
         .addr_a     (paddr[15:2]),
-        .data_a     (pwdata ^ 32'h5555_5555), // TBD - hack to make sure it REALLY works
+        .data_a     (pwdata),
         .q_a        (prdata),
-        .we_b       (4'b0),
-        .addr_b     (14'b0),
-        .data_b     (32'b0),
-        .q_b        ()
+        // RISC V
+        .we_b       (mem_wstrb),
+        .addr_b     (mem_addr[15:2]),
+        .data_b     (mem_wdata),
+        .q_b        (mem_rdata)
 );
 
 endmodule
