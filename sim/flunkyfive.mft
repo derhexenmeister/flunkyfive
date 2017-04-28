@@ -4,6 +4,7 @@
 //--------------> RTL FILES <------------------------//
 ../../../src/rtl/flunkyfive.v
 ../../../src/rtl/shared_ram.v
+../../../src/rtl/gpio.v
 ../../../src/rtl/true_dual_port_ram_single_clock.v
 //+incdir+../../../src/rtl/
 //--------------> IP CORES <-------------------------//

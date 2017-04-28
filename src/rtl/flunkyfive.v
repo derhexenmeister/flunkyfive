@@ -20,18 +20,23 @@ module flunkyfive (
     wire [31:0]         mem_wdata;
     wire [3:0]          mem_wstrb;
 
-    reg                 mem_ready;
-    //reg [31:0]        mem_rdata;
-    wire [31:0]          mem_rdata;
+    wire                mem_ready;
+    wire [31:0]         mem_rdata;
 
-    always @(posedge clk or negedge resetn) begin
-        if (!resetn) begin
-            mem_ready <= 1'b0;
-        end
-        else begin
-            mem_ready <= mem_valid;
-        end
-    end
+    // -------------------------------
+    // Bus structure
+    wire                mem_valid_sram = (mem_addr[19:16] != 4'h1) & mem_valid; // anything but gpio (prevent hangup)
+    wire                mem_valid_gpio = (mem_addr[19:16] == 4'h1) & mem_valid;
+
+    wire                mem_ready_sram;
+    wire                mem_ready_gpio;
+
+    assign              mem_ready = mem_ready_sram | mem_ready_gpio;
+
+    wire [31:0]         mem_rdata_sram;
+    wire [31:0]         mem_rdata_gpio = 32'h0; // TBD
+
+    assign              mem_rdata = mem_rdata_sram | mem_rdata_gpio;
 
     picorv32 #(
         .ENABLE_REGS_DUALPORT(1),
@@ -58,18 +63,34 @@ module flunkyfive (
     shared_ram #(
         .ADDR_WIDTH(14)
     ) ram (
-        .clk        (clk),
+        .clk            (clk),
+        .resetn         (resetn),
         // ARM HPS
-        .we_a       ({4{pwrite & psel & penable}}),
-        .addr_a     (paddr[15:2]),
-        .data_a     (pwdata),
-        .q_a        (prdata),
+        .we_a           ({4{pwrite & psel & penable}}),
+        .addr_a         (paddr[15:2]),
+        .data_a         (pwdata),
+        .q_a            (prdata),
         // RISC V
-        .we_b       (mem_wstrb),
-        .addr_b     (mem_addr[15:2]),
-        .data_b     (mem_wdata),
-        .q_b        (mem_rdata)
-);
+        .mem_valid_b    (mem_valid_sram),
+        .mem_ready_b    (mem_ready_sram),
+        .we_b           (mem_wstrb),
+        .addr_b         (mem_addr[15:2]),
+        .data_b         (mem_wdata),
+        .q_b            (mem_rdata_sram)
+    );
+
+    gpio #(
+        .DATA_WIDTH(4)
+    ) gpio (
+        .clk            (clk),
+        .resetn         (resetn),
+        .mem_valid      (mem_valid_gpio),
+        .mem_ready      (mem_ready_gpio),
+        .data           (mem_wdata),
+        .addr           (mem_addr),
+        .we             (|mem_wstrb),
+        .q              (mem_rdata_gpio)
+    );
 
 endmodule
 
