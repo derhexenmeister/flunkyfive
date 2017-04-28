@@ -1,15 +1,15 @@
 //--------------> LIBRARY FILES <--------------------//
 //--------------> INCLUDE BFM FILES <----------------//
-+incdir+$(FLUNKYFIVE)/src/inc/
++incdir+../../../src/inc/
 //--------------> RTL FILES <------------------------//
-$(FLUNKYFIVE)/src/rtl/flunkyfive.v
-$(FLUNKYFIVE)/src/rtl/shared_ram.v
-$(FLUNKYFIVE)/src/rtl/true_dual_port_ram_single_clock.v
-//+incdir+$(FLUNKYFIVE)/src/rtl/
+../../../src/rtl/flunkyfive.v
+../../../src/rtl/shared_ram.v
+../../../src/rtl/true_dual_port_ram_single_clock.v
+//+incdir+../../../src/rtl/
 //--------------> IP CORES <-------------------------//
-$(FLUNKYFIVE)/src/ip/picorv32/picorv32.v
+../../../src/ip/picorv32/picorv32.v
 //--------------> Testbench/BFM FILES <--------------//
-$(FLUNKYFIVE)/src/ben/testbench.v
-$(FLUNKYFIVE)/src/bfm/ff_apb_master_bfm.v
-$(FLUNKYFIVE)/src/bfm/ff_log.v
-$(FLUNKYFIVE)/src/bfm/ff_utilities.v
+../../../src/ben/testbench.v
+../../../src/bfm/ff_apb_master_bfm.v
+../../../src/bfm/ff_log.v
+../../../src/bfm/ff_utilities.v

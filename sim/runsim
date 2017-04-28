@@ -11,7 +11,7 @@ if [ ! $# == 1 ]; then
     exit 1
 fi
 
-FILENAME=$FLUNKYFIVE/src/tst/$1.v
+FILENAME=../src/tst/$1.v
 
 if [ ! -f $FILENAME ]; then
     echo "Test file $FILENAME does not exist"
@@ -45,8 +45,10 @@ else
     exit 1
 fi
 
+FILENAME=../../$FILENAME
+
 echo "Building simulation with iverilog"
-if iverilog -o sim.vvp $FLUNKYFIVE/src/tst/$1.v -f "../../flunkyfive.mft"; then
+if iverilog -o sim.vvp $FILENAME -f "../../flunkyfive.mft"; then
     echo "Simulation build successful"
 else
     echo "Unable to build simulation - aborting!" 1>&2
