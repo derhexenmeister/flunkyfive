@@ -49,8 +49,6 @@ initial begin
         @(posedge testbench.clk);
     end
 
-    force testbench.flunkyfive.flunky.cpu.resetn = 1'b0; // HACK
-
     $display("Testbench resetn deasserted");
 
     /////
@@ -79,7 +77,7 @@ initial begin
 
     `FF_NOTE("Done loading RISC V code");
 
-    release testbench.flunkyfive.flunky.cpu.resetn;
+    `FF_APB_WRITE(24'h1_0000, 32'h1);
 
     #(`FF_MILLISECOND * 2);
 

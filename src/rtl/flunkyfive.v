@@ -17,6 +17,7 @@ module flunkyfive #(parameter GPIO_WIDTH=4) (
     //
     inout [GPIO_WIDTH-1:0]  GPIO
 );
+
     ////////////////////
     // Control register
     //
@@ -46,7 +47,7 @@ module flunkyfive #(parameter GPIO_WIDTH=4) (
     //
     flunky flunky (
         .clk            (clk),
-        .resetn         (resetn),
+        .resetn         (flunky_control_resetn),
 
         // APB Interface
         //
@@ -67,6 +68,8 @@ module flunkyfive #(parameter GPIO_WIDTH=4) (
     ////////////////////
     // GPIO Pins
     //
+    assign gpi = GPIO;
+
     generate
         genvar i;
         for (i=0; i < GPIO_WIDTH; i=i+1) begin: u
@@ -81,7 +84,7 @@ module flunkyfive #(parameter GPIO_WIDTH=4) (
         if (!resetn) begin
             flunky_control_resetn <= 1'b0;
         end
-        else begin
+        else if (psel_csrs && penable) begin
             flunky_control_resetn <= pwdata[0];
         end
     end

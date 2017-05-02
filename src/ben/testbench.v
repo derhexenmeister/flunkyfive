@@ -65,7 +65,11 @@ ff_apb_master_bfm ff_apb_master_bfm(
 //////////////////////////////////////////////////////////////////////
 // Instantiate DUT
 //
-flunkyfive flunkyfive (
+tri1 [3:0]          GPIO;
+
+flunkyfive #(
+    .GPIO_WIDTH(4)
+) flunkyfive (
     .clk            (clk),
     .resetn         (resetn),
 
@@ -76,7 +80,9 @@ flunkyfive flunkyfive (
     .psel           (psel),
     .penable        (penable),
     .prdata         (prdata),
-    .pwdata         (pwdata)
+    .pwdata         (pwdata),
+
+    .GPIO           (GPIO)
 );
 
 endmodule
