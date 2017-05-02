@@ -6,7 +6,7 @@ module flunkyfive #(parameter GPIO_WIDTH=4) (
 
     // APB Interface
     //
-    input wire [15:0]       paddr,
+    input wire [19:0]       paddr,
     input wire              pwrite,
     input wire              psel,
     input wire              penable,
@@ -17,10 +17,33 @@ module flunkyfive #(parameter GPIO_WIDTH=4) (
     //
     inout [GPIO_WIDTH-1:0]  GPIO
 );
+    ////////////////////
+    // Control register
+    //
+    reg                     flunky_control_resetn;
+
+    ////////////////////
+    // GPIOs
+    //
     wire [GPIO_WIDTH-1:0]   gpi;
     wire [GPIO_WIDTH-1:0]   gpo;
     wire [GPIO_WIDTH-1:0]   gpen;
 
+    ////////////////////
+    // Decode APB bus addresses
+    //
+    wire [31:0]             prdata_ram;
+    wire [31:0]             prdata_csrs = {31'h0, flunky_control_resetn};
+    wire                    psel_ram;
+    wire                    psel_csrs;
+
+    assign psel_ram = (paddr[19:16] == 4'h0) & psel;
+    assign psel_csrs = (paddr[19:16] == 4'h1) & psel;
+    assign prdata = (psel_csrs) ? prdata_csrs : prdata_ram;
+
+    ////////////////////
+    // One "flunky" RISC V core
+    //
     flunky flunky (
         .clk            (clk),
         .resetn         (resetn),
@@ -31,7 +54,7 @@ module flunkyfive #(parameter GPIO_WIDTH=4) (
         .pwrite         (pwrite),
         .psel           (psel),
         .penable        (penable),
-        .prdata         (prdata),
+        .prdata         (prdata_ram),
         .pwdata         (pwdata),
 
         // GPIO Pin Control/Status
@@ -41,6 +64,7 @@ module flunkyfive #(parameter GPIO_WIDTH=4) (
         .gpen           (gpen)
 );
 
+    ////////////////////
     // GPIO Pins
     //
     generate
@@ -49,6 +73,18 @@ module flunkyfive #(parameter GPIO_WIDTH=4) (
             assign GPIO[i] = gpen[i] ? gpo[i] : 1'bz;
         end
     endgenerate
+
+    ////////////////////
+    // Control register
+    //
+    always @(posedge clk or negedge resetn) begin
+        if (!resetn) begin
+            flunky_control_resetn <= 1'b0;
+        end
+        else begin
+            flunky_control_resetn <= pwdata[0];
+        end
+    end
 
 endmodule
 

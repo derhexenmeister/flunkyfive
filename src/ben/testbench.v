@@ -4,7 +4,7 @@ module testbench();
     reg         clk;
     reg         resetn;
 
-    wire [15:0] paddr;
+    wire [19:0] paddr;
     wire        psel;
     wire [31:0] prdata;
     wire        pwrite;

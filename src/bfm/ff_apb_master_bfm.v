@@ -3,7 +3,7 @@
 module ff_apb_master_bfm(
     input wire        presetn,
     input wire        pclk,
-    output reg [15:0] paddr,
+    output reg [19:0] paddr,
     output reg        pwrite,
     output reg        psel,
     output reg        penable,
@@ -11,7 +11,7 @@ module ff_apb_master_bfm(
     output reg [31:0] pwdata
 );
 
-localparam APB_BAD_ADDR = 16'hbad;
+localparam APB_BAD_ADDR = 24'hbad;
 localparam APB_BAD_DATA = 32'hbad;
 
 // This status is for viewing in waveforms
@@ -38,7 +38,7 @@ begin
     pwrite  = 1'b0;
     psel    = 1'b1;
     penable = 1'b0;
-    paddr   = address[15:0];
+    paddr   = address[19:0];
     @(posedge pclk);
     `D;
     penable = 1'b1;
@@ -63,7 +63,7 @@ begin
     pwrite  = 1'b1;
     psel    = 1'b1;
     penable = 1'b0;
-    paddr   = address[15:0];
+    paddr   = address[19:0];
     pwdata  = data;
     @(posedge pclk);
     `D;
