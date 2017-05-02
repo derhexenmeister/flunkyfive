@@ -1,6 +1,4 @@
-module gpio
-    #(parameter DATA_WIDTH=4)
-(
+module gpio #(parameter GPIO_WIDTH=4) (
     input                       clk,
     input                       resetn,
     input                       mem_valid,
@@ -9,10 +7,10 @@ module gpio
     input [31:0]                addr,
     input                       we,
     output [31:0]               q,
-    inout [DATA_WIDTH-1:0]      gpio
+    input [GPIO_WIDTH-1:0]      gpi,
+    output reg [GPIO_WIDTH-1:0] gpen,
+    output reg [GPIO_WIDTH-1:0] gpo
 );
-    reg [DATA_WIDTH-1:0]        gpen;
-    reg [DATA_WIDTH-1:0]        gpo;
     reg [31:0]                  internal_q;
 
     always @(posedge clk or negedge resetn) begin
@@ -24,10 +22,10 @@ module gpio
         else begin
                 mem_ready <= mem_valid;
                 if (we & (addr[3:2] == 2'b00)) begin
-                    gpen[DATA_WIDTH-1:0] = data[DATA_WIDTH-1:0];
+                    gpen[GPIO_WIDTH-1:0] = data[GPIO_WIDTH-1:0];
                 end
                 if (we & (addr[3:2] == 2'b01)) begin
-                    gpo[DATA_WIDTH-1:0] = data[DATA_WIDTH-1:0];
+                    gpo[GPIO_WIDTH-1:0] = data[GPIO_WIDTH-1:0];
                 end
         end
     end
@@ -36,8 +34,8 @@ module gpio
         case (addr[3:2])
             2'b00: internal_q = gpen;
             2'b01: internal_q = gpo;
-            2'b10: internal_q = gpio;
-            default: internal_q = gpio;
+            2'b10: internal_q = gpi;
+            default: internal_q = gpi;
         endcase
     end
 

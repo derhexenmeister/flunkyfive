@@ -33,25 +33,24 @@ module shared_ram
 
     generate
         genvar i;
-        for (i=0; i < 4; i=i+1)
-            begin: u
-                true_dual_port_ram_single_clock #(
-                    .DATA_WIDTH(8),
-                    .ADDR_WIDTH(ADDR_WIDTH)
-                ) ram (
-                    .clk    (clk),
-                    // ARM HPS port
-                    .data_a (data_a[(i*8)+:8]),
-                    .addr_a (addr_a),
-                    .we_a   (we_a[i]),
-                    .q_a    (q_a[(i*8)+:8]),
-                    // RISC V port
-                    .data_b (data_b[(i*8)+:8]),
-                    .addr_b (addr_b),
-                    .we_b   (we_b[i] & mem_valid_b),
-                    .q_b    (q_b_internal[(i*8)+:8])
-                );
-            end
+        for (i=0; i < 4; i=i+1) begin: u
+            true_dual_port_ram_single_clock #(
+                .DATA_WIDTH(8),
+                .ADDR_WIDTH(ADDR_WIDTH)
+            ) ram (
+                .clk    (clk),
+                // ARM HPS port
+                .data_a (data_a[(i*8)+:8]),
+                .addr_a (addr_a),
+                .we_a   (we_a[i]),
+                .q_a    (q_a[(i*8)+:8]),
+                // RISC V port
+                .data_b (data_b[(i*8)+:8]),
+                .addr_b (addr_b),
+                .we_b   (we_b[i] & mem_valid_b),
+                .q_b    (q_b_internal[(i*8)+:8])
+            );
+        end
     endgenerate
 
 endmodule
